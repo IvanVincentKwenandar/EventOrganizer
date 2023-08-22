@@ -1,0 +1,2 @@
+docker create --name StaffSvc --network PetraNet -p 5700:5700 staff_svc
+docker network connect StaffNet StaffSvc

@@ -1,0 +1,74 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f1f1f1;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+}
+
+h2 {
+  margin-top: 40px;
+  margin-bottom: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+table th,
+table td {
+  padding: 8px;
+  border: 1px solid #ccc;
+}
+
+table th {
+  background-color: #f9f9f9;
+  text-align: left;
+}
+
+input[type="text"],
+input[type="date"],
+input[type="time"],
+input[type="number"] {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button[type="button"] {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+button[type="button"]:last-child {
+  margin-right: 0;
+}
+
+button[type="button"]:hover {
+  background-color: #45a049;
+}
+
+button {
+  padding: 8px 16px;
+  font-size: 14px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #fff;
+  background-color: #4caf50;
+}
+/* Optional: Add some spacing between the form and the table */
+form {
+  margin-bottom: 20px;
+}

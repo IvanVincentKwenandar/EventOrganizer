@@ -1,0 +1,26 @@
+services:
+  StaffSQL:
+    image: mysql
+    ports:
+      - 3308:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - ./StaffSQL:/docker-entrypoint-initdb.d
+    networks:
+      - StaffNet
+  StaffSvc:
+    build: ./StaffSvc/
+    image: staff_svc
+    ports:
+      - 5700:5700
+    networks:
+      - EoNet
+      - StaffNet
+    depends_on: 
+      StaffSQL:
+        condition: service_started
+
+networks:
+  EoNet:
+  StaffNet:

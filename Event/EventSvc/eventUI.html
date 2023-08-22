@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Event</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        // Function to send a POST request to create a new event
+        function createEventss() {
+            // console.log(orderId);
+            var formData = {
+                idOrder: getOrderIdFromURL(),
+                idStaffPIC: $("#idStaffPIC").val(),
+                namaEvent: $("#namaEvent").val(),
+                deskripsiEvent: $("#deskripsiEvent").val(),
+                tanggalEvent: formatDate($("#tanggalEvent").val()),
+                jamMulaiEvent: formatTime($("#jamMulaiEvent").val()),
+                jamAkhirEvent: formatTime($("#jamAkhirEvent").val()),
+                subTotalEvent: Number($("#subTotalEvent").val())
+            };
+
+            console.log(formData);
+
+            $.ajax({
+                type: "POST",
+                url: "http://localhost:5600/eo/event",
+                async: false,
+                data: JSON.stringify(formData),
+                contentType: "application/json",
+                success: function(response) {
+                    // Handle success response
+                    alert("Event added successfully!");
+                    getEventList(); // Refresh the event list after adding a new event
+                },
+                error: function(xhr, status, error) {
+                    // Handle error response
+                    alert("Failed to create order: " + error);
+                }
+            });
+        }
+
+        function getOrderIdFromURL() {
+            var url = window.location.href;
+            var params = new URLSearchParams(url.slice(url.indexOf('?')));
+            // console.log(params.get('orderId'));
+            return params.get('orderId');
+        }
+
+        function formatDate(dateString) {
+            var date = new Date(dateString);
+            var year = date.getFullYear();
+            var month = String(date.getMonth() + 1).padStart(2, '0');
+            var day = String(date.getDate()).padStart(2, '0');
+            return year + '-' + month + '-' + day;
+        }
+
+        function formatTime(timeString) {
+            var time = timeString.split(':');
+            var hours = time[0];
+            var minutes = time[1];
+            var seconds = '00'; // Set seconds to 00
+            return hours + ':' + minutes + ':' + seconds;
+        }
+
+        // Function to retrieve and display the event list
+        function getEventList(eventId) {
+            $.ajax({
+                type: "GET",
+                url: "http://localhost:5600/eo/event/order/" + eventId,
+                success: function(response) {
+                    // Handle success response
+                    var events = response;
+                    var eventList = $("#eventTableBody");
+                    eventList.empty();
+
+                    for (var i = 0; i < events.length; i++) {
+                        var event = events[i];
+                        var eventRow = createEventRow(event);
+                        eventList.append(eventRow);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    // Handle error response
+                    alert("Failed to retrieve event list: " + error);
+                }
+            });
+        }
+
+        function createEventRow(event) {
+            var eventRow = $("<tr id='event-row-" + event.idEvent + "'></tr>");
+
+            eventRow.append("<td style='display:none'>" + event.idEvent + "</td>");
+            eventRow.append("<td><input type='text' class='id-order' value='" + event.idOrder + "' disabled></td>");
+            eventRow.append("<td><input type='text' class='id-staff' value='" + event.idStaffPIC + "' disabled></td>");
+            eventRow.append("<td><input type='text' class='namaEvent' value='" + event.namaEvent + "' disabled></td>");
+            eventRow.append("<td><input type='text' class='deskripsiEvent' value='" + event.deskripsiEvent + "' disabled></td>");
+            eventRow.append("<td><input type='text' class='tanggal' value='" + formatDate(event.tanggalEvent) + "' disabled></td>");
+            eventRow.append("<td><input type='text' class='jamMulai' value='" + formatTime(event.jamMulaiEvent) + "' disabled></td>");
+            eventRow.append("<td><input type='text' class='jamSelesai' value='" + formatTime(event.jamAkhirEvent) + "' disabled></td>");
+            eventRow.append("<td><input type='number' class='subTotal' value='" + event.subTotalEvent + "' disabled></td>");
+
+            var actionsCell = $("<td></td>");
+            actionsCell.append("<button class='edit-event' onclick='editEvent(" + event.idEvent + ")'>Edit</button>");
+            actionsCell.append("<button class='save-event' onclick='saveEvent(" + event.idEvent + ")' style='display:none'>Save</button>");
+            actionsCell.append("<button class='delete-event' onclick='deleteEvent(" + event.idEvent + ")'>Delete</button>");
+            eventRow.append(actionsCell);
+
+            return eventRow;
+        }
+
+        function editEvent(eventId) {
+            var eventRow = $("#event-row-" + eventId);
+
+            eventRow.find("input").prop("disabled", false);
+            eventRow.find(".edit-event").hide();
+            eventRow.find(".save-event").show();
+        }
+
+        function saveEvent(eventId) {
+            var eventRow = $("#event-row-" + eventId);
+
+            eventRow.find("input").prop("disabled", true);
+            eventRow.find(".save-event").hide();
+            eventRow.find(".edit-event").show();
+
+            var updatedEventData = {
+                idOrder: eventRow.find(".id-order").val(),
+                idStaffPIC: eventRow.find(".id-staff").val(),
+                namaEvent: eventRow.find(".namaEvent").val(),
+                deskripsiEvent: eventRow.find(".deskripsiEvent").val(),
+                tanggalEvent: formatDate(eventRow.find(".tanggal").val()),
+                jamMulaiEvent: formatTime(eventRow.find(".jamMulai").val()),
+                jamAkhirEvent: formatTime(eventRow.find(".jamSelesai").val()),
+                subTotalEvent: Number(eventRow.find(".subTotal").val())
+            };
+
+            $.ajax({
+                type: "PUT",
+                url: "http://localhost:5600/eo/event/" + eventId,
+                data: JSON.stringify(updatedEventData),
+                contentType: "application/json",
+                success: function(response) {
+                    // Handle success response
+                    console.log(response);
+                    alert("Event updated successfully!");
+                },
+                error: function(xhr, status, error) {
+                    // Handle error response
+                    alert("Failed to update event: " + error);
+                }
+            });
+        }
+
+        function deleteEvent(eventId) {
+            $.ajax({
+                type: "DELETE",
+                url: "http://localhost:5600/eo/event/" + eventId,
+                success: function(response) {
+                    // Handle success response
+                    alert("Event deleted successfully!");
+                    getEventList();
+                },
+                error: function(xhr, status, error) {
+                    // Handle error response
+                    alert("Failed to delete event: " + error);
+                }
+            });
+        }
+
+        function resetForm() {
+            $("#idOrder").val("");
+            $("#idStaffPIC").val("");
+            $("#namaEvent").val("");
+            $("#deskripsiEvent").val("");
+            $("#tanggalEvent").val("");
+            $("#jamMulaiEvent").val("");
+            $("#jamAkhirEvent").val("");
+            $("#subTotalEvent").val("");
+        }
+
+        function ReturnOrder(){
+            window.location.href = "../../Order/OrderSvc/orderStaff.html";
+        }
+
+        $(document).ready(function() {
+            var orderId = getOrderIdFromURL();
+            if (orderId) {
+                $("#idOrder").val(orderId);
+            }
+            getEventList(orderId);
+            
+        });
+    </script>
+</head>
+<body>
+    <h1>Add Event</h1>
+    <form>
+        <label for="idOrder">Order ID:</label>
+        <input type="text" id="idOrder" required><br>
+
+        <label for="idStaffPIC">Staff PIC ID:</label>
+        <input type="text" id="idStaffPIC" required><br>
+
+        <label for="namaEvent">Event Name:</label>
+        <input type="text" id="namaEvent" required><br>
+
+        <label for="deskripsiEvent">Event Description:</label>
+        <input type="text" id="deskripsiEvent" required><br>
+
+        <label for="tanggalEvent">Event Date:</label>
+        <input type="date" id="tanggalEvent" required><br>
+
+        <label for="jamMulaiEvent">Event Start Time:</label>
+        <input type="time" id="jamMulaiEvent" required><br>
+
+        <label for="jamAkhirEvent">Event End Time:</label>
+        <input type="time" id="jamAkhirEvent" required><br>
+
+        <label for="subTotalEvent">Event Subtotal:</label>
+        <input type="number" id="subTotalEvent" required><br>
+
+        <button type="button" onclick="createEventss()">Add Event</button>
+        <button type="button" onclick="resetForm()">Reset</button>
+        <button type="button" onclick="ReturnOrder()">Return</button>
+    </form>
+
+    <h2>Event List</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Staff PIC ID</th>
+                <th>Event Name</th>
+                <th>Event Description</th>
+                <th>Event Date</th>
+                <th>Event Start Time</th>
+                <th>Event End Time</th>
+                <th>Sub Total Event</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="eventTableBody"></tbody>
+    </table>
+</body>
+</html>

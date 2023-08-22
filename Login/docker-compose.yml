@@ -1,0 +1,35 @@
+services:
+  LoginSQL:
+    image: mysql
+    ports:
+      - 3310:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - /mnt/c/Users/ASUS/Downloads/uassoa_order_event/uassoa/Login/LoginSQL:/docker-entrypoint-initdb.d
+    networks:
+      - LoginNet
+  LoginSvc:
+    build: ./LoginSvc/
+    image: login_svc
+    ports:
+      - 5900:5900
+    networks:
+      - EoNet
+      - LoginNet
+    depends_on: 
+      LoginSQL:
+        condition: service_started
+  LoginCons:
+    build: ./LoginCons/
+    image: login_cons
+    networks:
+      - EoNet
+      - LoginNet
+    depends_on: 
+      LoginSQL:
+        condition: service_started
+
+networks:
+  EoNet:
+  LoginNet:

@@ -1,0 +1,1 @@
+docker run --name StaffSQL --network StaffNet -d -p 3308:3306 -e MYSQL_ROOT_PASSWORD=root -v /mnt/e/uassoa/Staff/StaffSQL:/docker-entrypoint-initdb.d mysql

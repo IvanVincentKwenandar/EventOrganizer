@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <label for="userType">User Type:</label>
+                <label><input type="radio" name="userType" value='Client' required> Client</label>
+                <label><input type="radio" name="userType" value='Staff' required> Staff</label>
+            </div>
+            <div class="form-group">
+                <button type="submit">Login</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#loginForm").submit(function(event) {
+                event.preventDefault();
+
+                var username = $("#username").val();
+                var password = $("#password").val();
+                var userType = $("input[name='userType']:checked").val();
+
+                var requestData = {
+                    username: username,
+                    password: password,
+                    userType: userType
+                };
+
+                $.ajax({
+                    url: "http://localhost:5900/eo/login",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(requestData),
+                    success: function(response) {
+                        // Check the user type and login status
+                        var idUser = response[0].idUser;
+                        var username = response[0].username;
+                        var password = response[0].password;
+                        var userTypes = response[0].userType;
+                        
+                        // Use the values as needed
+                        if (userType === userTypes) {
+                            // User type and login are correct
+                            console.log("Login successful");
+                            if(userType === "Client"){
+                              window.location.href = "../../Order/OrderSvc/OrderClient.html?id=" + idUser;
+                            }
+                            else if(userType === "Staff"){
+                              window.location.href = "../../Order/OrderSvc/OrderStaff.html";
+                            }
+
+                        } else {
+                            // User type or login is incorrect
+                            console.log("Login failed. Please check your credentials.");
+                        }
+                    },
+                    error: function() {
+                        // Handle the login error
+                        console.log("Login failed. Please try again.");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
